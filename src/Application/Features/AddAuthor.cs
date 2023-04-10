@@ -1,4 +1,5 @@
-﻿using Application.Common.Models;
+﻿using Application.Common.Interfaces;
+using Application.Common.Models;
 using Application.Common.Wrappers;
 using Domain.Entities;
 
@@ -10,9 +11,20 @@ public static class AddAuthor
     
     public class Handler : ICommandHandler<Command,Author>
     {
-        public Task<IResponse<Author>> Handle(Command request, CancellationToken cancellationToken)
+        private readonly IUnitOfWork _unitOfWork;
+
+        public Handler(IUnitOfWork unitOfWork)
         {
-            throw new NotImplementedException();
+            _unitOfWork = unitOfWork;
+        }
+
+        public async Task<IResponse<Author>> Handle(Command request, CancellationToken cancellationToken)
+        {
+            var author = new Author(request.FirstName, request.LastName);
+            await _unitOfWork.Authors.AddAsync(author, cancellationToken);
+            await _unitOfWork.CommitAsync();
+
+            return Response.Success(author);
         }
     }
 }

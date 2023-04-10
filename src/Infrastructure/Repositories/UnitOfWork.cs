@@ -18,8 +18,8 @@ public class UnitOfWork : IUnitOfWork
     public IAuthorRepository Authors { get; }
     public IBookRepository Books { get; }
 
-    public void CommitAsync() => _context.SaveChangesAsync();
-    public void RejectChangesAsync()
+    public Task<int> CommitAsync() => _context.SaveChangesAsync();
+    public void RejectChanges()
     {
         var entityEntries = _context.ChangeTracker
             .Entries()
@@ -33,7 +33,7 @@ public class UnitOfWork : IUnitOfWork
                     break;
                 case EntityState.Modified:
                 case EntityState.Deleted:
-                    entry.ReloadAsync();
+                    entry.Reload();
                     break;
             }
         }
