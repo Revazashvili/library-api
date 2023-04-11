@@ -1,6 +1,7 @@
 using API.Endpoints;
 using Application;
 using Infrastructure;
+using Infrastructure.Persistence;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -20,5 +21,15 @@ app.UseSwaggerUI();
 var apiEndpointRouteBuilder = app.MapApi();
 apiEndpointRouteBuilder.MapAuthors();
 apiEndpointRouteBuilder.MapBooks();
+
+try
+{
+    var libraryDbContext = app.Services.CreateScope().ServiceProvider.GetRequiredService<LibraryDbContext>();
+    await DatabaseSeeder.TrySeedAsync(libraryDbContext);
+}
+catch
+{
+    // ignored
+}
 
 app.Run();

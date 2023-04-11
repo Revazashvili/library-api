@@ -12,4 +12,10 @@ public class Author
     public string FirstName { get; set; }
     public string LastName { get; set; }
     public List<Book>? Books { get; set; }
+
+    public static Author Create(string firstName, string lastName, params Book[] books) =>
+        new(firstName, lastName)
+        {
+            Books = books.ToList()
+        };
 }
