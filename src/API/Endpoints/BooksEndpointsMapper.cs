@@ -1,7 +1,6 @@
 ﻿using Application.Common.Models;
 using Application.Features.Books;
 using MediatR;
-using Microsoft.AspNetCore.Mvc;
 
 namespace API.Endpoints;
 
@@ -10,13 +9,13 @@ internal static class BooksEndpointsMapper
     internal static IEndpointRouteBuilder MapBooks(this IEndpointRouteBuilder endpointRouteBuilder)
     {
         var booksRouteGroupBuilder = endpointRouteBuilder.MapGroup("books");
-        
-        booksRouteGroupBuilder.MapGet("", async ([FromBody]Pagination? pagination, CancellationToken cancellationToken,
-            ISender sender) => await sender.Send(new PagedBooksQuery(pagination),cancellationToken))
+
+        booksRouteGroupBuilder.MapGet("", async (int pageNumber, int pageSize, CancellationToken cancellationToken,
+                ISender sender) => await sender.Send(new PagedBooksQuery(new Pagination(pageNumber, pageSize)), cancellationToken))
             .Produces<IResponse<Unit>>();
         
-        booksRouteGroupBuilder.MapGet("/{authorId}", async (int authorId,[FromBody]Pagination? pagination, CancellationToken cancellationToken,
-                    ISender sender) => await sender.Send(new PagedBooksByAuthorQuery(authorId,pagination),cancellationToken))
+        booksRouteGroupBuilder.MapGet("/{authorId}", async (int authorId,int pageNumber, int pageSize, CancellationToken cancellationToken,
+                    ISender sender) => await sender.Send(new PagedBooksByAuthorQuery(authorId,new Pagination(pageNumber, pageSize)),cancellationToken))
             .Produces<IResponse<Unit>>();
         
         booksRouteGroupBuilder.MapPost("/", async (AddBookCommand command, 

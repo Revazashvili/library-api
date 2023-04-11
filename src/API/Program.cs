@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization;
 using API.Endpoints;
 using Application;
 using Infrastructure;
@@ -8,6 +9,11 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+builder.Services.ConfigureHttpJsonOptions(options =>
+{
+    options.SerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
+});
 
 builder.Services
     .AddApplication()
