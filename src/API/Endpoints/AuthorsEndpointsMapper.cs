@@ -1,5 +1,5 @@
 ﻿using Application.Common.Models;
-using Application.Features;
+using Application.Features.Authors;
 using Domain.Entities;
 using MediatR;
 
@@ -11,12 +11,12 @@ internal static class AuthorsEndpointsMapper
     {
         var authorsRouteGroupBuilder = endpointRouteBuilder.MapGroup("authors");
 
-        authorsRouteGroupBuilder.MapPost("/", async (AddAuthor.Command addAuthorCommand, 
-            IMediator mediator) => await mediator.Send(addAuthorCommand))
+        authorsRouteGroupBuilder.MapPost("/", async (AddAuthorCommand addAuthorCommand, CancellationToken cancellationToken,
+                ISender sender) => await sender.Send(addAuthorCommand,cancellationToken))
             .Produces<IResponse<Author>>();
 
-        authorsRouteGroupBuilder.MapDelete("/{id}", async (int id,
-            IMediator mediator) => await mediator.Send(new DeleteAuthor.Command(id)))
+        authorsRouteGroupBuilder.MapDelete("/{id}", async (int id, CancellationToken cancellationToken,
+                ISender sender) => await sender.Send(new DeleteAuthorCommand(id),cancellationToken))
             .Produces<IResponse<Unit>>();
 
         return authorsRouteGroupBuilder;

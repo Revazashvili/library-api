@@ -19,5 +19,6 @@ app.UseSwaggerUI();
 
 var apiEndpointRouteBuilder = app.MapApi();
 apiEndpointRouteBuilder.MapAuthors();
+apiEndpointRouteBuilder.MapBooks();
 
 app.Run();
