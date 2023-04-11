@@ -7,9 +7,10 @@ public class Book
     public string Description { get; set; }
     public Author Author { get; set; }
 
-    public static Book Create(string title, string description) =>
+    public static Book Create(string title, string description, int? id = null) =>
         new()
         {
+            Id = id ?? default,
             Title = title,
             Description = description
         };
