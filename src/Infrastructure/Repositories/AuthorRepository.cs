@@ -1,5 +1,7 @@
 ﻿using Application.Common.Interfaces;
+using Application.Common.Models;
 using Domain.Entities;
+using Infrastructure.Extensions;
 using Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 
@@ -8,15 +10,12 @@ namespace Infrastructure.Repositories;
 public class AuthorRepository : IAuthorRepository
 {
     private readonly LibraryDbContext _context;
+    public AuthorRepository(LibraryDbContext context) => _context = context;
 
-    public AuthorRepository(LibraryDbContext context)
-    {
-        _context = context;
-    }
-
-    public Task<List<Author>> GetAllAsync(CancellationToken cancellationToken = default) => 
+    public Task<List<Author>> GetAllAsync(Pagination? pagination = null,CancellationToken cancellationToken = default) => 
         _context.Authors
             .Include(author => author.Books)
+            .Paged(pagination)
             .ToListAsync(cancellationToken);
 
     public Task<Author?> GetByIdAsync(int id, CancellationToken cancellationToken = default) =>
