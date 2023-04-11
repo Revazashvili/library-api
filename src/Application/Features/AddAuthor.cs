@@ -9,7 +9,7 @@ public static class AddAuthor
 {
     public record Command(string FirstName, string LastName) : ICommand<Author>;
     
-    public class Handler : ICommandHandler<Command,Author>
+    internal class Handler : ICommandHandler<Command,Author>
     {
         private readonly IUnitOfWork _unitOfWork;
 

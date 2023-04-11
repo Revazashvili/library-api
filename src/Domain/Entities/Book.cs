@@ -1,3 +1,9 @@
 ﻿namespace Domain.Entities;
 
-public record Book(int Id,string Title,string Description,Author Author);
+public class Book
+{
+    public int Id { get; init; }
+    public string Title { get; set; }
+    public string Description { get; set; }
+    public Author Author { get; set; }
+}
