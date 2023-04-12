@@ -12,7 +12,7 @@ public class AuthorRepository : IAuthorRepository
     private readonly LibraryDbContext _context;
     public AuthorRepository(LibraryDbContext context) => _context = context;
 
-    public Task<List<Author>> GetAllAsync(Pagination? pagination = null,CancellationToken cancellationToken = default) => 
+    public Task<List<Author>> GetAllAsync(Pagination pagination,CancellationToken cancellationToken = default) => 
         _context.Authors
             .Include(author => author.Books)
             .Paged(pagination)
@@ -35,4 +35,7 @@ public class AuthorRepository : IAuthorRepository
             return;
         _context.Authors.Remove(author);
     }
+
+    public Task<bool> ExistsWithIdAsync(int id,CancellationToken cancellationToken = default) => 
+        _context.Authors.AnyAsync(author => author.Id == id, cancellationToken: cancellationToken);
 }

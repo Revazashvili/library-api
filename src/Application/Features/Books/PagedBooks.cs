@@ -5,7 +5,7 @@ using Domain.Entities;
 
 namespace Application.Features.Books;
 
-public record PagedBooksQuery(Pagination? Pagination = null) : IQuery<IEnumerable<Book>>;
+public record PagedBooksQuery(Pagination Pagination) : IQuery<IEnumerable<Book>>;
 
 internal class PagedBooksCommandHandler : IQueryHandler<PagedBooksQuery,IEnumerable<Book>>
 {

@@ -5,5 +5,5 @@ namespace Application.Common.Interfaces;
 
 public interface IBookRepository : IRepository<Book>
 {
-    Task<List<Book>> GetAllByAuthorAsync(int authorId,Pagination? pagination = null,CancellationToken cancellationToken = default);
+    Task<List<Book>> GetAllByAuthorAsync(int authorId,Pagination pagination,CancellationToken cancellationToken = default);
 }

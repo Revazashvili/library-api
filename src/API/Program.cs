@@ -1,6 +1,8 @@
 using System.Text.Json.Serialization;
 using API.Endpoints;
 using Application;
+using Application.Common.Models;
+using FluentValidation;
 using Infrastructure;
 using Infrastructure.Persistence;
 
@@ -27,6 +29,24 @@ app.UseSwaggerUI();
 var apiEndpointRouteBuilder = app.MapApi();
 apiEndpointRouteBuilder.MapAuthors();
 apiEndpointRouteBuilder.MapBooks();
+
+app.Use(async (context, next) =>
+{
+    try
+    {
+        await next.Invoke();
+    }
+    catch (ValidationException exception)
+    {
+        var errorMessages = exception.Errors
+            .Where(failure => failure is not null)
+            .Select(failure => failure.ErrorMessage.Replace("'",""))
+            .ToList();
+
+        var response = Response.Fail<object>(errorMessages);
+        await context.Response.WriteAsJsonAsync(response);
+    }
+});
 
 try
 {
