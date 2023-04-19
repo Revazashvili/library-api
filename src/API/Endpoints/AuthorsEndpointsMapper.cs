@@ -15,7 +15,7 @@ internal static class AuthorsEndpointsMapper
                 ISender sender) => await sender.Send(addAuthorCommand,cancellationToken))
             .Produces<IResponse<Author>>();
 
-        authorsRouteGroupBuilder.MapDelete("/{id}", async (int id, CancellationToken cancellationToken,
+        authorsRouteGroupBuilder.MapDelete("/{id:int}", async (int id, CancellationToken cancellationToken,
                 ISender sender) => await sender.Send(new DeleteAuthorCommand(id),cancellationToken))
             .Produces<IResponse<Unit>>();
 
