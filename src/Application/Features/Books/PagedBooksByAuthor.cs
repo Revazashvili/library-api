@@ -7,7 +7,7 @@ using Application.Common.Wrappers;
 namespace Application.Features.Books;
 
 public record PagedBooksByAuthorQuery(int AuthorId,Pagination Pagination) 
-    : IValidateQuery<IEnumerable<BookResponse>>;
+    : IValidatedQuery<IEnumerable<BookResponse>>;
 
 internal class PagedBooksByAuthorQueryHandler : IValidatedQueryHandler<PagedBooksByAuthorQuery,IEnumerable<BookResponse>>
 {

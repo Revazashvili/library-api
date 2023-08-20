@@ -7,7 +7,7 @@ using Domain.Entities;
 
 namespace Application.Features.Books;
 
-public record PagedBooksQuery(Pagination Pagination) : IValidateQuery<IEnumerable<Book>>;
+public record PagedBooksQuery(Pagination Pagination) : IValidatedQuery<IEnumerable<Book>>;
 
 internal class PagedBooksCommandHandler : IValidatedQueryHandler<PagedBooksQuery,IEnumerable<Book>>
 {
