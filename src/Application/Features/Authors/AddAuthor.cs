@@ -26,7 +26,7 @@ internal class AddAuthorCommandHandler : IValidatedCommandHandler<AddAuthorComma
         }
         catch (Exception exception)
         {
-            return new ValidationResult(exception.Message);
+            return new ValidationResult("Error occured while adding author");
         }
     }
 }

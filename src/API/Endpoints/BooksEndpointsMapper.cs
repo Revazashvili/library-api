@@ -1,5 +1,8 @@
-﻿using Application.Common.Models;
+﻿using API.Extensions;
+using Application.Common.Models;
+using Application.Common.Validation;
 using Application.Features.Books;
+using Domain.Entities;
 using MediatR;
 
 namespace API.Endpoints;
@@ -11,12 +14,18 @@ internal static class BooksEndpointsMapper
         var booksRouteGroupBuilder = endpointRouteBuilder.MapGroup("books");
 
         booksRouteGroupBuilder.MapGet("", async (int pageNumber, int pageSize, CancellationToken cancellationToken,
-                ISender sender) => await sender.Send(new PagedBooksQuery(new Pagination(pageNumber, pageSize)), cancellationToken))
-            .Produces<IResponse<Unit>>();
-        
-        booksRouteGroupBuilder.MapGet("/{authorId:int}", async (int authorId,int pageNumber, int pageSize, CancellationToken cancellationToken,
-                    ISender sender) => await sender.Send(new PagedBooksByAuthorQuery(authorId,new Pagination(pageNumber, pageSize)),cancellationToken))
-            .Produces<IResponse<Unit>>();
+                ISender sender) => 
+                (await sender.Send(new PagedBooksQuery(new Pagination(pageNumber, pageSize)), cancellationToken)).ToResult())
+            .Produces<IEnumerable<Book>>()
+            .Produces<ValidationResult>(StatusCodes.Status400BadRequest);
+
+        booksRouteGroupBuilder.MapGet("/{authorId:int}", async (int authorId, int pageNumber, int pageSize,
+                    CancellationToken cancellationToken,
+                    ISender sender) =>
+                (await sender.Send(new PagedBooksByAuthorQuery(authorId, new Pagination(pageNumber, pageSize)),
+                    cancellationToken)).ToResult())
+            .Produces<IEnumerable<Book>>()
+            .Produces<ValidationResult>(StatusCodes.Status400BadRequest);
         
         booksRouteGroupBuilder.MapPost("/", async (AddBookCommand command, 
             CancellationToken cancellationToken, ISender sender) => await sender.Send(command,cancellationToken))

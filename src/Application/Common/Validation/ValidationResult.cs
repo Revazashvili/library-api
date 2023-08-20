@@ -2,9 +2,9 @@ namespace Application.Common.Validation;
 
 public class ValidationResult
 {
-    public ValidationResult(params string[] errors)
+    public ValidationResult(string error)
     {
-        Messages = errors;
+        Messages = new []{ error };
         IsValid = false;
     }
     
