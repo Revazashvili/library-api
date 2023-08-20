@@ -1,24 +1,32 @@
-﻿using Application.Common.Interfaces;
-using Application.Common.Models;
+﻿using Application.Common.Either;
+using Application.Common.Interfaces;
+using Application.Common.Validation;
 using Application.Common.Wrappers;
 using FluentValidation;
 using MediatR;
 
 namespace Application.Features.Books;
 
-public record DeleteBookCommand(int Id) : ICommand<Unit>;
+public record DeleteBookCommand(int Id) : IValidatedCommand<Unit>;
 
-internal class DeleteBookCommandHandler : ICommandHandler<DeleteBookCommand,Unit>
+internal class DeleteBookCommandHandler : IValidatedCommandHandler<DeleteBookCommand,Unit>
 {
     private readonly IUnitOfWork _unitOfWork;
     public DeleteBookCommandHandler(IUnitOfWork unitOfWork) => _unitOfWork = unitOfWork;
 
-    public async Task<IResponse<Unit>> Handle(DeleteBookCommand request, CancellationToken cancellationToken)
+    public async Task<Either<Unit,ValidationResult>> Handle(DeleteBookCommand request, CancellationToken cancellationToken)
     {
-        await _unitOfWork.Books.DeleteAsync(request.Id, cancellationToken);
-        await _unitOfWork.CommitAsync();
+        try
+        {
+            await _unitOfWork.Books.DeleteAsync(request.Id, cancellationToken);
+            await _unitOfWork.CommitAsync();
 
-        return Response.Success(Unit.Value);
+            return Unit.Value;
+        }
+        catch (Exception)
+        {
+            return new ValidationResult("Error occured while deleting book");
+        }
     }
 }
 

@@ -28,7 +28,7 @@ internal class PagedBooksByAuthorQueryHandler : IValidatedQueryHandler<PagedBook
                 .Select(BookResponse.Create)
                 .ToList();
         }
-        catch (Exception exception)
+        catch (Exception)
         {
             return new ValidationResult("Error occured while retrieving books");
         }

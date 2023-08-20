@@ -24,7 +24,7 @@ internal class PagedBooksCommandHandler : IValidatedQueryHandler<PagedBooksQuery
 
             return books;
         }
-        catch (Exception exception)
+        catch (Exception)
         {
             return new ValidationResult("Error occured while retrieving books");
         }

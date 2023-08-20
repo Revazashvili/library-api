@@ -1,5 +1,6 @@
-﻿using Application.Common.Interfaces;
-using Application.Common.Models;
+﻿using Application.Common.Either;
+using Application.Common.Interfaces;
+using Application.Common.Validation;
 using Application.Common.Wrappers;
 using Domain.Entities;
 using FluentValidation;
@@ -7,26 +8,32 @@ using FluentValidation;
 namespace Application.Features.Books;
 
 public record AddBookCommand(string Title, string Description, int AuthorId) 
-    : ICommand<BookResponse>;
+    : IValidatedCommand<BookResponse>;
 
-internal class AddBookCommandHandler : ICommandHandler<AddBookCommand, BookResponse>
+internal class AddBookCommandHandler : IValidatedCommandHandler<AddBookCommand, BookResponse>
 {
     private readonly IUnitOfWork _unitOfWork;
     public AddBookCommandHandler(IUnitOfWork unitOfWork) => _unitOfWork = unitOfWork;
 
-    public async Task<IResponse<BookResponse>> Handle(AddBookCommand request, CancellationToken cancellationToken)
+    public async Task<Either<BookResponse,ValidationResult>> Handle(AddBookCommand request, CancellationToken cancellationToken)
     {
-        var author = await _unitOfWork.Authors.GetByIdAsync(request.AuthorId, cancellationToken);
+        try
+        {
+            var author = await _unitOfWork.Authors.GetByIdAsync(request.AuthorId, cancellationToken);
 
-        var book = Book.Create(request.Title, request.Description);
-        if (author!.Books is null)
-            author.Books = new List<Book>();
+            var book = Book.Create(request.Title, request.Description);
+            if (author!.Books is null)
+                author.Books = new List<Book>();
 
-        author.Books?.Add(book);
-        await _unitOfWork.CommitAsync();
+            author.Books?.Add(book);
+            await _unitOfWork.CommitAsync();
 
-        var response = BookResponse.Create(book);
-        return Response.Success(response);
+            return BookResponse.Create(book);
+        }
+        catch (Exception)
+        {
+            return new ValidationResult("Error occured while adding book");
+        }
     }
 }
 
@@ -52,6 +59,7 @@ public class AddBookCommandValidator : AbstractValidator<AddBookCommand>
             .NotNull()
             .WithMessage("FirstName must not be null.")
             .MustAsync(async (authorId, cancellationToken) =>
-                await unitOfWork.Authors.ExistsWithIdAsync(authorId, cancellationToken));
+                await unitOfWork.Authors.ExistsWithIdAsync(authorId, cancellationToken))
+            .WithMessage("Author with this id doesn't exists");
     }
 }

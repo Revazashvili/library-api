@@ -28,16 +28,19 @@ internal static class BooksEndpointsMapper
             .Produces<ValidationResult>(StatusCodes.Status400BadRequest);
         
         booksRouteGroupBuilder.MapPost("/", async (AddBookCommand command, 
-            CancellationToken cancellationToken, ISender sender) => await sender.Send(command,cancellationToken))
-            .Produces<IResponse<BookResponse>>();
+            CancellationToken cancellationToken, ISender sender) => (await sender.Send(command,cancellationToken)).ToResult())
+            .Produces<BookResponse>()
+            .Produces<ValidationResult>(StatusCodes.Status400BadRequest);
         
         booksRouteGroupBuilder.MapPatch("/{id:int}", async (int id,UpdateBookRequest request, CancellationToken cancellationToken,
-                ISender sender) => await sender.Send(new UpdateBookCommand(id,request),cancellationToken))
-            .Produces<IResponse<BookResponse>>();
+                ISender sender) => (await sender.Send(new UpdateBookCommand(id,request),cancellationToken)).ToResult())
+            .Produces<BookResponse>()
+            .Produces<ValidationResult>(StatusCodes.Status400BadRequest);
         
         booksRouteGroupBuilder.MapDelete("/{id:int}", async (int id, CancellationToken cancellationToken, 
-                    ISender sender) => await sender.Send(new DeleteBookCommand(id),cancellationToken))
-            .Produces<IResponse<Unit>>();
+                    ISender sender) => (await sender.Send(new DeleteBookCommand(id),cancellationToken)).ToResult())
+            .Produces<Unit>()
+            .Produces<ValidationResult>(StatusCodes.Status400BadRequest);
 
         return booksRouteGroupBuilder;
     }

@@ -1,27 +1,37 @@
-﻿using Application.Common.Interfaces;
+﻿using Application.Common.Either;
+using Application.Common.Interfaces;
 using Application.Common.Models;
+using Application.Common.Validation;
 using Application.Common.Wrappers;
 using Domain.Entities;
 using FluentValidation;
 
 namespace Application.Features.Books;
 
-public record UpdateBookCommand(int Id,UpdateBookRequest UpdateBookRequest) : ICommand<BookResponse>;
+public record UpdateBookCommand(int Id,UpdateBookRequest UpdateBookRequest) : IValidatedCommand<BookResponse>;
 
-internal class UpdateBookCommandHandler : ICommandHandler<UpdateBookCommand,BookResponse>
+internal class UpdateBookCommandHandler : IValidatedCommandHandler<UpdateBookCommand,BookResponse>
 {
     private readonly IUnitOfWork _unitOfWork;
     public UpdateBookCommandHandler(IUnitOfWork unitOfWork) => _unitOfWork = unitOfWork;
 
-    public Task<IResponse<BookResponse>> Handle(UpdateBookCommand request, CancellationToken cancellationToken)
+    public Task<Either<BookResponse,ValidationResult>> Handle(UpdateBookCommand request, CancellationToken cancellationToken)
     {
-        var updateBookRequest = request.UpdateBookRequest;
-        var book = Book.Create(updateBookRequest.Title, updateBookRequest.Description, request.Id);
-        _unitOfWork.Books.Update(book);
-        _unitOfWork.CommitAsync();
+        try
+        {
+            var updateBookRequest = request.UpdateBookRequest;
+            var book = Book.Create(updateBookRequest.Title, updateBookRequest.Description, request.Id);
+            _unitOfWork.Books.Update(book);
+            _unitOfWork.CommitAsync();
 
-        var bookResponse = BookResponse.Create(book);
-        return Task.FromResult(Response.Success(bookResponse));
+            var bookResponse = BookResponse.Create(book);
+            return Task.FromResult(new Either<BookResponse, ValidationResult>(bookResponse));
+        }
+        catch (Exception)
+        {
+            var validationResult = new ValidationResult("Error occured while updating book");
+            return Task.FromResult(new Either<BookResponse, ValidationResult>(validationResult));
+        }
     }
 }
 

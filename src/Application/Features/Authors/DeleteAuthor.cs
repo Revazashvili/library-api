@@ -23,7 +23,7 @@ internal class DeleteAuthorCommandHandler : IValidatedCommandHandler<DeleteAutho
 
             return Unit.Value;
         }
-        catch (Exception exception)
+        catch (Exception)
         {
             return new ValidationResult("Error occured while deleting author");
         }
