@@ -1,24 +1,32 @@
-﻿using Application.Common.Interfaces;
-using Application.Common.Models;
+﻿using Application.Common.Either;
+using Application.Common.Interfaces;
+using Application.Common.Validation;
 using Application.Common.Wrappers;
 using FluentValidation;
 using MediatR;
 
 namespace Application.Features.Authors;
 
-public record DeleteAuthorCommand(int Id) : ICommand<Unit>;
+public record DeleteAuthorCommand(int Id) : IValidatedCommand<Unit>;
 
-internal class DeleteAuthorCommandHandler : ICommandHandler<DeleteAuthorCommand, Unit>
+internal class DeleteAuthorCommandHandler : IValidatedCommandHandler<DeleteAuthorCommand, Unit>
 {
     private readonly IUnitOfWork _unitOfWork;
     public DeleteAuthorCommandHandler(IUnitOfWork unitOfWork) => _unitOfWork = unitOfWork;
 
-    public async Task<IResponse<Unit>> Handle(DeleteAuthorCommand request, CancellationToken cancellationToken)
+    public async Task<Either<Unit,ValidationResult>> Handle(DeleteAuthorCommand request, CancellationToken cancellationToken)
     {
-        await _unitOfWork.Authors.DeleteAsync(request.Id, cancellationToken);
-        await _unitOfWork.CommitAsync();
+        try
+        {
+            await _unitOfWork.Authors.DeleteAsync(request.Id, cancellationToken);
+            await _unitOfWork.CommitAsync();
 
-        return Response.Success(Unit.Value);
+            return Unit.Value;
+        }
+        catch (Exception exception)
+        {
+            return new ValidationResult(exception.Message);
+        }
     }
 }
 

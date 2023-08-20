@@ -2,6 +2,7 @@ using System.Text.Json.Serialization;
 using API.Endpoints;
 using Application;
 using Application.Common.Models;
+using Application.Common.Validation;
 using FluentValidation;
 using Infrastructure;
 using Infrastructure.Persistence;
@@ -43,8 +44,8 @@ app.Use(async (context, next) =>
             .Select(failure => failure.ErrorMessage.Replace("'",""))
             .ToList();
 
-        var response = Response.Fail<object>(errorMessages);
-        await context.Response.WriteAsJsonAsync(response);
+        var validationResult = new ValidationResult(errorMessages);
+        await context.Response.WriteAsJsonAsync(validationResult);
     }
 });
 

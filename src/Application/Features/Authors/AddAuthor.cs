@@ -1,25 +1,33 @@
-﻿using Application.Common.Interfaces;
-using Application.Common.Models;
+﻿using Application.Common.Either;
+using Application.Common.Interfaces;
+using Application.Common.Validation;
 using Application.Common.Wrappers;
 using Domain.Entities;
 using FluentValidation;
 
 namespace Application.Features.Authors;
 
-public record AddAuthorCommand(string FirstName, string LastName) : ICommand<Author>;
+public record AddAuthorCommand(string FirstName, string LastName) : IValidatedCommand<Author>;
 
-internal class AddAuthorCommandHandler : ICommandHandler<AddAuthorCommand, Author>
+internal class AddAuthorCommandHandler : IValidatedCommandHandler<AddAuthorCommand, Author>
 {
     private readonly IUnitOfWork _unitOfWork;
     public AddAuthorCommandHandler(IUnitOfWork unitOfWork) => _unitOfWork = unitOfWork;
 
-    public async Task<IResponse<Author>> Handle(AddAuthorCommand request, CancellationToken cancellationToken)
+    public async Task<Either<Author,ValidationResult>> Handle(AddAuthorCommand request, CancellationToken cancellationToken)
     {
-        var author = new Author(request.FirstName, request.LastName);
-        await _unitOfWork.Authors.AddAsync(author, cancellationToken);
-        await _unitOfWork.CommitAsync();
-
-        return Response.Success(author);
+        try
+        {
+            var author = new Author(request.FirstName, request.LastName);
+            await _unitOfWork.Authors.AddAsync(author, cancellationToken);
+            await _unitOfWork.CommitAsync();
+            
+            return author;
+        }
+        catch (Exception exception)
+        {
+            return new ValidationResult(exception.Message);
+        }
     }
 }
 
