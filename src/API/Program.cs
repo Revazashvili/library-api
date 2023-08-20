@@ -1,7 +1,6 @@
 using System.Text.Json.Serialization;
 using API.Endpoints;
 using Application;
-using Application.Common.Models;
 using Application.Common.Validation;
 using FluentValidation;
 using Infrastructure;
