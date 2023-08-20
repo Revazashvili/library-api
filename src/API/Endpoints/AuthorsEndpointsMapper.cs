@@ -8,7 +8,7 @@ namespace API.Endpoints;
 
 internal static class AuthorsEndpointsMapper
 {
-    internal static IEndpointRouteBuilder MapAuthors(this IEndpointRouteBuilder endpointRouteBuilder)
+    internal static void MapAuthors(this IEndpointRouteBuilder endpointRouteBuilder)
     {
         var authorsRouteGroupBuilder = endpointRouteBuilder.MapGroup("authors");
 
@@ -22,7 +22,5 @@ internal static class AuthorsEndpointsMapper
                 ISender sender) => (await sender.Send(new DeleteAuthorCommand(id),cancellationToken)).ToResult())
             .Produces<Unit>()
             .Produces<ValidationResult>(StatusCodes.Status400BadRequest);
-
-        return authorsRouteGroupBuilder;
     }
 }

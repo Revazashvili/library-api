@@ -9,7 +9,7 @@ namespace API.Endpoints;
 
 internal static class BooksEndpointsMapper
 {
-    internal static IEndpointRouteBuilder MapBooks(this IEndpointRouteBuilder endpointRouteBuilder)
+    internal static void MapBooks(this IEndpointRouteBuilder endpointRouteBuilder)
     {
         var booksRouteGroupBuilder = endpointRouteBuilder.MapGroup("books");
 
@@ -41,7 +41,5 @@ internal static class BooksEndpointsMapper
                     ISender sender) => (await sender.Send(new DeleteBookCommand(id),cancellationToken)).ToResult())
             .Produces<Unit>()
             .Produces<ValidationResult>(StatusCodes.Status400BadRequest);
-
-        return booksRouteGroupBuilder;
     }
 }
